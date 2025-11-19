@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ item.name }}</title>
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+    <h1>{{ item.name }}</h1>
+    <p>{{ item.description }}</p>
+    <h2>Цена: {{ item.price }} USD</h2>
+    <button id="buy-btn">Buy</button>
+
+    <script>
+        const stripe = Stripe("{{ stripe_public_key }}");
+        document.getElementById("buy-btn").onclick = function() {
+            fetch("{% url 'buy' item.id %}")
+                .then(r => r.json())
+                .then(data => {
+                    return stripe.redirectToCheckout({sessionId: data.session_id});
+                });
+        };
+    </script>
+</body>
+</html>
