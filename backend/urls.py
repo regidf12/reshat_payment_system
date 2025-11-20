@@ -21,6 +21,11 @@ from payment import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
-    path('buy/<int:item_id>/', views.buy, name='buy'),
     path('item/<int:item_id>/', views.item_page, name='item_page'),
+    path('buy/<int:item_id>/', views.buy, name='buy'),
+    path('add_to_cart/<int:item_id>/', views.add_to_cart, name='add_to_cart'),
+    path('cart/', views.cart_view, name='cart'),
+    path('checkout/', views.checkout, name='checkout'),
+    path('clear_cart/', views.clear_cart, name='clear_cart'),
+    path('success/', views.payment_success, name='success'),
 ]

@@ -20,7 +20,7 @@ class Item(models.Model):
     )
     currency = models.CharField(
         max_length=3, 
-        default="usd"
+        default='usd', choices=[('usd', 'USD'), ('eur', 'EUR')]
     )
 
     class Meta:
@@ -34,16 +34,9 @@ class Item(models.Model):
 class Order(models.Model):
     items = models.ManyToManyField(Item)
     created = models.DateTimeField(auto_now_add=True)
-    discount = models.ForeignKey('Discount', null=True, blank=True, on_delete=models.SET_NULL)
-    tax = models.ForeignKey('Tax', null=True, blank=True, on_delete=models.SET_NULL)
 
     def total(self):
-        total = sum(item.price for item in self.items.all())
-        if self.discount:
-            total -= self.discount.amount
-        if self.tax:
-            total += self.tax.amount
-        return max(total, 0)
+        return sum(item.price for item in self.items.all())
 
 class Discount(models.Model):
     name = models.CharField(max_length=30)
