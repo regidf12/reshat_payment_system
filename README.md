@@ -35,24 +35,50 @@
     STRIPE_SECRET_KEY=sk_test_********
     STRIPE_PUBLIC_KEY=pk_test_********
     DJANGO_SECRET_KEY= Все что угодно
-    DEBUG=False
+    DEBUG=True
     ```
 
 4. Примените миграции и создайте суперпользователя:
 
+    python manage.py makemigrations
+
     python manage.py migrate
 
-    python manage.py createsuperuser. 
+    python manage.py createsuperuser
 
-5. Запустите сервер:
+   Если не создались миграции приложения:
+
+    python manage.py makemigrations payment
+
+6. Запустите сервер:
 
     python manage.py runserver
 
 ## Запуск с Docker
 
-1. Отредактируйте `.env` как выше  
+1. Отредактируйте `.env` как выше
+
+2. Редактируем requirements.txt
+   
+   ```
+   asgiref==3.10.0
+   certifi==2025.11.12
+   charset-normalizer==3.4.4
+   Django==5.2.8
+   django-environ==0.12.0
+   docker==7.1.0
+   idna==3.11
+   requests==2.32.5
+   sqlparse==0.5.3
+   stripe==13.2.0
+   typing_extensions==4.15.0
+   tzdata==2025.2
+   urllib3==2.5.0
+   whitenoise==6.11.0
+   gunicorn==20.0.0
+   ```
     
-2. Запустите через Docker Compose:
+4. Запустите через Docker Compose:
 
     docker-compose up --build    
 
