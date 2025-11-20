@@ -8,48 +8,73 @@
 </head>
 <body class="bg-light">
 <div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <button class="btn btn-link currency-btn {% if currency == 'usd' %}fw-bold{% endif %}" data-currency="usd">USD</button>
+            <button class="btn btn-link currency-btn {% if currency == 'eur' %}fw-bold{% endif %}" data-currency="eur">EUR</button>
+        </div>
+        {% if discounts or taxes %}
+        <form method="post" class="row g-2 align-items-end" style="flex:1; margin-left:1rem;">
+            {% csrf_token %}
+            <input type="hidden" name="currency" value="{{ currency }}">
+            <div class="col-md-6">
+                <label class="form-label">Скидка</label>
+                <select class="form-select" name="discount_id">
+                    <option value="">Без скидки</option>
+                    {% for discount in discounts %}
+                        <option value="{{ discount.id }}" {% if discount.id == selected_discount_id %}selected{% endif %}>{{ discount.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Налог</label>
+                <select class="form-select" name="tax_id">
+                    <option value="">Без налога</option>
+                    {% for tax in taxes %}
+                        <option value="{{ tax.id }}" {% if tax.id == selected_tax_id %}selected{% endif %}>{{ tax.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12">
+                <button class="btn btn-outline-secondary w-100 mt-2">Применить</button>
+            </div>
+        </form>
+        {% endif %}
+    </div>
     <div class="card shadow-lg mx-auto" style="max-width: 700px;">
         <div class="card-body">
             <h1 class="card-title mb-3">Корзина</h1>
             {% if items %}
                 <ul class="list-group mb-3">
-                    {% for item in items %}
+                    {% for item in cart_items %}
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <div class="fw-bold">{{ item.name }}</div>
-                        <span>{{ item.price }} {{ item.currency|upper }}</span>
+                        <span>{{ item.price }} {{ currency|upper }}</span>
                     </li>
                     {% endfor %}
                 </ul>
                 <div class="mb-3 fs-4">Итого: <b>{{ total }} {{ currency|upper }}</b></div>
-                <a href="{% url 'checkout' %}" class="btn btn-lg btn-success w-100 mb-2">Оплатить всё</a>
+                <a href="{% url 'checkout' %}?currency={{ currency }}" class="btn btn-lg btn-success w-100 mb-2">Оплатить всё</a>
                 <a href="{% url 'clear_cart' %}" class="btn btn-outline-danger w-100 mb-2">Очистить корзину</a>
             {% else %}
                 <div class="alert alert-info">Корзина пуста</div>
             {% endif %}
             <a href="{% url 'index' %}" class="btn btn-link d-block w-100 mt-2">← Вернуться к покупкам</a>
+            <p class="text-center text-muted mt-3">
+                Код проекта: <a href="https://github.com/regidf12" target="_blank">github.com/regidf12</a>
+            </p>
         </div>
     </div>
 </div>
-<script type="text/javascript">
-  const stripe = Stripe("{{ stripe_public_key }}");
-  document.getElementById("checkout-button").addEventListener("click", function () {
-    fetch("{% url 'checkout'%}", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": "{{ csrf_token }}"
-      },
-      body: JSON.stringify({ order_id: "{{ order.id }}" })
-    })
-    .then(response => response.json())
-    .then(session => {
-      return stripe.redirectToCheckout({ sessionId: session.id });
-    })
-    .catch(error => {
-      alert("Ошибка запроса к Stripe. Попробуйте позже.");
-      console.error("Ошибка:", error);
+<script>
+    document.querySelectorAll('.currency-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const currency = this.getAttribute('data-currency');
+            const params = new URLSearchParams(window.location.search);
+            params.set('currency', currency);
+            window.location.search = params.toString();
+        });
     });
-  });
 </script>
 </body>
 </html>
